@@ -218,6 +218,13 @@ require("lazy").setup({
 				require("alpha").setup(startify.config)
 			end,
 		},
+		-- Notification
+		{
+			"rcarriga/nvim-notify",
+			config = function()
+				vim.notify = require("notify")
+			end,
+		},
 		-- Colorscheme
 		{
 			"ellisonleao/gruvbox.nvim",
