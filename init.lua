@@ -303,6 +303,12 @@ require("lazy").setup({
 			config = true,
 		},
 		{
+			"machakann/vim-highlightedyank",
+			init = function()
+				vim.g.highlightedyank_highlight_duration = 300
+			end,
+		},
+		{
 			"mvllow/modes.nvim",
 			tag = "v0.2.1",
 			config = true,
