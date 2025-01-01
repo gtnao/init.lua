@@ -39,9 +39,11 @@ require("lazy").setup({
 				"hrsh7th/cmp-nvim-lsp",
 				"hrsh7th/cmp-nvim-lua",
 				"hrsh7th/cmp-cmdline",
+				"onsails/lspkind-nvim",
 			},
 			config = function()
 				local cmp = require("cmp")
+				local lspkind = require("lspkind")
 				cmp.setup({
 					mapping = cmp.mapping.preset.insert({
 						["<C-u>"] = cmp.mapping.scroll_docs(-4),
@@ -52,6 +54,17 @@ require("lazy").setup({
 						{ name = "nvim_lsp" },
 						{ name = "nvim_lua" },
 					}),
+					formatting = {
+						format = lspkind.cmp_format({
+							mode = "symbol_text",
+							maxwidth = {
+								menu = 50,
+								abbr = 50,
+							},
+							ellipsis_char = "...",
+							show_labelDetails = true,
+						}),
+					},
 				})
 				cmp.setup.cmdline(":", {
 					mapping = cmp.mapping.preset.cmdline(),
@@ -137,6 +150,10 @@ require("lazy").setup({
 				})
 			end,
 		},
+		{
+			"j-hui/fidget.nvim",
+			config = true,
+		},
 		-- Treesitter
 		{
 			"nvim-treesitter/nvim-treesitter",
@@ -174,6 +191,20 @@ require("lazy").setup({
 			},
 			config = true,
 		},
+		-- AI
+		-- Nodejs is required.
+		-- First, execute `Copilot auth`.
+		{
+			"zbirenbaum/copilot.lua",
+			opts = {
+				suggestion = {
+					auto_trigger = true,
+					keymap = {
+						accept = "<Tab>",
+					},
+				},
+			},
+		},
 		-- Git
 		{
 			"NeogitOrg/neogit",
@@ -187,6 +218,19 @@ require("lazy").setup({
 		{
 			"lewis6991/gitsigns.nvim",
 			config = true,
+		},
+		-- Cmdline
+		{
+			"folke/noice.nvim",
+			dependencies = {
+				"MunifTanjim/nui.nvim",
+				"rcarriga/nvim-notify",
+			},
+			opts = {
+				popupmenu = {
+					backend = "cmp",
+				},
+			},
 		},
 		-- View
 		-- Statusline
@@ -206,6 +250,10 @@ require("lazy").setup({
 			},
 			config = true,
 		},
+		{
+			"petertriho/nvim-scrollbar",
+			config = true,
+		},
 		-- Startup
 		{
 			"goolord/alpha-nvim",
@@ -217,6 +265,63 @@ require("lazy").setup({
 				startify.file_icons.provider = "devicons"
 				require("alpha").setup(startify.config)
 			end,
+		},
+		-- Edit
+		{
+			"gbprod/substitute.nvim",
+			config = function()
+				local substitute = require("substitute")
+				substitute.setup()
+				vim.keymap.set({ "n", "x" }, "_", substitute.operator)
+			end,
+		},
+		{
+			"kylechui/nvim-surround",
+			version = "*",
+			config = true,
+		},
+		{
+			"windwp/nvim-autopairs",
+			config = true,
+		},
+		{
+			"monaqa/dial.nvim",
+			init = function()
+				vim.keymap.set({ "n", "x" }, "+", [[<Plug>(dial-increment)]])
+				vim.keymap.set({ "n", "x" }, "-", [[<Plug>(dial-decrement)]])
+			end,
+		},
+		-- Search
+		{
+			"kevinhwang91/nvim-hlslens",
+			config = true,
+		},
+		-- Highlight
+		{
+			"lukas-reineke/indent-blankline.nvim",
+			main = "ibl",
+			config = true,
+		},
+		{
+			"mvllow/modes.nvim",
+			tag = "v0.2.1",
+			config = true,
+		},
+		{
+			"folke/todo-comments.nvim",
+			dependencies = {
+				"nvim-lua/plenary.nvim",
+			},
+			config = true,
+		},
+		{
+			"norcalli/nvim-colorizer.lua",
+			config = true,
+		},
+		-- Quickfix
+		{
+			"kevinhwang91/nvim-bqf",
+			config = true,
 		},
 		-- Notification
 		{
