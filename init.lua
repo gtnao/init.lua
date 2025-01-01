@@ -19,6 +19,8 @@ vim.opt.termguicolors = true
 -- Keymaps
 vim.g.mapleader = " "
 vim.keymap.set({ "n", "x" }, "<Leader>", "<Nop>")
+vim.keymap.set({ "n", "x" }, "<Plug>(ff)", "<Nop>")
+vim.keymap.set({ "n", "x" }, ",", "<Plug>(_FuzzyFinder)")
 
 vim.keymap.set({ "n", "x" }, ";", ":")
 vim.keymap.set({ "n", "x" }, ":", ";")
@@ -229,6 +231,7 @@ require("lazy").setup({
 				configs.setup({
 					ensure_installed = {
 						"lua",
+						"markdown",
 						"tsx",
 					},
 					sync_install = false,
@@ -254,9 +257,36 @@ require("lazy").setup({
 			tag = "0.1.8",
 			dependencies = {
 				"nvim-lua/plenary.nvim",
+				{
+					"nvim-telescope/telescope-fzf-native.nvim",
+					build = "make",
+				},
+				"crispgm/telescope-heading.nvim",
 			},
 			event = { "VimEnter" },
-			config = true,
+			config = function()
+				local telescope = require("telescope")
+				telescope.setup({
+					extensions = {
+						heading = {
+							treesitter = true,
+						},
+					},
+				})
+				telescope.load_extension("fzf")
+				telescope.load_extension("heading")
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)f", [[<Cmd>Telescope find_files<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)o", [[<Cmd>Telescope oldfiles<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)s", [[<Cmd>Telescope live_grep<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)b", [[<Cmd>Telescope buffers<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder);", [[<Cmd>Telescope command_history<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)/", [[<Cmd>Telescope search_history<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)q", [[<Cmd>Telescope quickfix<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)d", [[<Cmd>Telescope diagnostics<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)n", [[<Cmd>Telescope notify<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)g", [[<Cmd>Telescope git_status<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)h", [[<Cmd>Telescope heading<CR>]], { silent = true })
+			end,
 		},
 		-- Filer
 		{
@@ -309,6 +339,9 @@ require("lazy").setup({
 				"nvim-telescope/telescope.nvim",
 			},
 			event = { "VeryLazy" },
+			init = function()
+				vim.keymap.set("n", "<Leader>g", [[<Cmd>Neogit<CR>]], { silent = true })
+			end,
 			config = true,
 		},
 		{
