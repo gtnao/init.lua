@@ -44,7 +44,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	if vim.v.shell_error ~= 0 then
 		vim.api.nvim_echo({
 			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-			{ out,                            "WarningMsg" },
+			{ out, "WarningMsg" },
 			{ "\nPress any key to exit..." },
 		}, true, {})
 		vim.fn.getchar()
@@ -147,6 +147,10 @@ require("lazy").setup({
 					end,
 					["lua_ls"] = function()
 						lspconfig.lua_ls.setup({
+							on_attach = function(client, _)
+								client.server_capabilities.documentFormattingProvider = false
+								client.server_capabilities.documentRangeFormattingProvider = false
+							end,
 							settings = {
 								Lua = {
 									diagnostics = {
@@ -469,8 +473,7 @@ require("lazy").setup({
 			event = { "VeryLazy" },
 			config = function()
 				require("Comment").setup({
-					pre_hook = require("ts_context_commentstring.integrations.comment_nvim")
-					.create_pre_hook(),
+					pre_hook = require("ts_context_commentstring.integrations.comment_nvim").create_pre_hook(),
 				})
 			end,
 		},
@@ -489,8 +492,7 @@ require("lazy").setup({
 			},
 			event = { "VeryLazy" },
 			init = function()
-				vim.keymap.set("", "fw", [[<Cmd>lua require('hop').hint_words()<CR>]],
-					{ silent = true, remap = true })
+				vim.keymap.set("", "fw", [[<Cmd>lua require('hop').hint_words()<CR>]], { silent = true, remap = true })
 			end,
 		},
 		-- Highlight
@@ -547,8 +549,8 @@ require("lazy").setup({
 					for _, win in ipairs(vim.api.nvim_list_wins()) do
 						local buf = vim.api.nvim_win_get_buf(win)
 						if
-						    vim.fn.bufexists(buf) == 1
-						    and vim.api.nvim_get_option_value("filetype", { buf = buf }) == "notify"
+							vim.fn.bufexists(buf) == 1
+							and vim.api.nvim_get_option_value("filetype", { buf = buf }) == "notify"
 						then
 							vim.api.nvim_win_close(win, { force = false })
 						end
