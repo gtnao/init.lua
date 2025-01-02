@@ -72,16 +72,16 @@ local ft_settings = {
 		shiftwidth = 4,
 		expandtab = true,
 	},
-	c = {
-		tabstop = 4,
-		shiftwidth = 4,
-		expandtab = true,
-	},
-	cpp = {
-		tabstop = 4,
-		shiftwidth = 4,
-		expandtab = true,
-	},
+	-- c = {
+	-- 	tabstop = 4,
+	-- 	shiftwidth = 4,
+	-- 	expandtab = true,
+	-- },
+	-- cpp = {
+	-- 	tabstop = 4,
+	-- 	shiftwidth = 4,
+	-- 	expandtab = true,
+	-- },
 	java = {
 		tabstop = 4,
 		shiftwidth = 4,
@@ -219,28 +219,55 @@ require("lazy").setup({
 				local lspconfig = require("lspconfig")
 				mason_lspconfig.setup({
 					ensure_installed = {
+						"clangd",
 						"lua_ls",
+						"rust_analyzer",
 					},
 					automatic_installation = true,
 				})
 				local default_capabilities = require("cmp_nvim_lsp").default_capabilities()
+				local on_attach = function(client, bufnr)
+					if client.supports_method("textDocument/formatting") then
+						vim.api.nvim_create_autocmd("BufWritePre", {
+							buffer = bufnr,
+							callback = function()
+								vim.lsp.buf.format({ async = false })
+							end,
+						})
+					end
+				end
 				mason_lspconfig.setup_handlers({
 					function(server_name)
 						lspconfig[server_name].setup({
 							capabilities = default_capabilities,
+							on_attach = on_attach,
 						})
 					end,
 					["lua_ls"] = function()
 						lspconfig.lua_ls.setup({
 							capabilities = default_capabilities,
-							on_attach = function(client, _)
+							on_attach = function(client, bufnr)
 								client.server_capabilities.documentFormattingProvider = false
 								client.server_capabilities.documentRangeFormattingProvider = false
+								on_attach(client, bufnr)
 							end,
 							settings = {
 								Lua = {
 									diagnostics = {
 										globals = { "vim" },
+									},
+								},
+							},
+						})
+					end,
+					["rust_analyzer"] = function()
+						lspconfig.rust_analyzer.setup({
+							capabilities = default_capabilities,
+							on_attach = on_attach,
+							settings = {
+								["rust-analyzer"] = {
+									checkOnSave = {
+										command = "clippy",
 									},
 								},
 							},
@@ -299,6 +326,9 @@ require("lazy").setup({
 					ui = {
 						code_action = "󰌶",
 					},
+					lightbulb = {
+						virtual_text = false,
+					},
 					symbol_in_winbar = {
 						enable = false,
 					},
@@ -323,6 +353,7 @@ require("lazy").setup({
 			"nvim-treesitter/nvim-treesitter",
 			build = ":TSUpdate",
 			dependencies = {
+				"nvim-treesitter/playground",
 				"RRethy/nvim-treesitter-endwise",
 			},
 			event = { "VeryLazy" },
@@ -330,8 +361,15 @@ require("lazy").setup({
 				local configs = require("nvim-treesitter.configs")
 				configs.setup({
 					ensure_installed = {
+						"c",
+						"cpp",
+						"git_config",
+						"gitcommit",
+						"gitignore",
 						"lua",
 						"markdown",
+						"rust",
+						"toml",
 						"tsx",
 					},
 					sync_install = false,
