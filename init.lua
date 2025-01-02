@@ -1,6 +1,7 @@
 -- Options
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
 
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
@@ -36,6 +37,55 @@ vim.keymap.set("n", "<ESC><ESC>", [[<Cmd>nohlsearch<CR>]], { silent = true })
 
 vim.keymap.set("n", "ZZ", "<Nop>")
 vim.keymap.set("n", "ZQ", "<Nop>")
+
+-- Filetype
+local ft_settings = {
+	go = {
+		tabstop = 4,
+		shiftwidth = 4,
+		expandtab = false,
+	},
+	lua = {
+		tabstop = 4,
+		shiftwidth = 4,
+		expandtab = false,
+	},
+	python = {
+		tabstop = 4,
+		shiftwidth = 4,
+		expandtab = true,
+	},
+	rust = {
+		tabstop = 4,
+		shiftwidth = 4,
+		expandtab = true,
+	},
+	c = {
+		tabstop = 4,
+		shiftwidth = 4,
+		expandtab = true,
+	},
+	cpp = {
+		tabstop = 4,
+		shiftwidth = 4,
+		expandtab = true,
+	},
+	java = {
+		tabstop = 4,
+		shiftwidth = 4,
+		expandtab = true,
+	},
+}
+vim.api.nvim_create_autocmd("FileType", {
+	callback = function()
+		local s = ft_settings[vim.bo.filetype]
+		if s then
+			vim.opt_local.tabstop = s.tabstop
+			vim.opt_local.shiftwidth = s.shiftwidth
+			vim.opt_local.expandtab = s.expandtab
+		end
+	end,
+})
 
 -- Plugin Manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
