@@ -1,13 +1,10 @@
 -- TODO: Following tasks are remained.
--- Sinippet
--- Japanese completion
 -- More LSPs
--- LiveGrep in FuzzyFinder
 -- Bufferline Move
 -- Trouble
 -- Test & TaskRunner
--- Replace quickfix
 -- DAP
+-- Markdown
 -- Local Settings
 -- Autocmds
 
@@ -151,14 +148,17 @@ require("lazy").setup({
 				"hrsh7th/cmp-path",
 				"hrsh7th/cmp-nvim-lsp-signature-help",
 				"hrsh7th/cmp-nvim-lua",
+				"saadparwaiz1/cmp_luasnip",
 				"hrsh7th/cmp-buffer",
 				"hrsh7th/cmp-cmdline",
 				"hrsh7th/cmp-nvim-lsp-document-symbol",
 				"onsails/lspkind-nvim",
+				"L3MON4D3/LuaSnip",
 			},
 			config = function()
 				local cmp = require("cmp")
 				local lspkind = require("lspkind")
+				local luasnip = require("luasnip")
 				cmp.setup({
 					mapping = cmp.mapping.preset.insert({
 						["<C-u>"] = cmp.mapping.scroll_docs(-4),
@@ -170,9 +170,15 @@ require("lazy").setup({
 						{ name = "path" },
 						{ name = "nvim_lsp_signature_help" },
 						{ name = "nvim_lua" },
+						{ name = "luasnip" },
 					}, {
 						{ name = "buffer" },
 					}),
+					snippet = {
+						expand = function(args)
+							luasnip.lsp_expand(args.body)
+						end,
+					},
 					formatting = {
 						format = lspkind.cmp_format({
 							mode = "symbol_text",
@@ -357,23 +363,41 @@ require("lazy").setup({
 					"nvim-telescope/telescope-fzf-native.nvim",
 					build = "make",
 				},
+				{
+					"nvim-telescope/telescope-live-grep-args.nvim",
+				},
 				"crispgm/telescope-heading.nvim",
 			},
 			event = { "VimEnter" },
 			config = function()
 				local telescope = require("telescope")
+				local lga_actions = require("telescope-live-grep-args.actions")
 				telescope.setup({
 					extensions = {
+						live_grep_args = {
+							auto_quoting = true,
+							mappings = {
+								i = {
+									["<C-k>"] = lga_actions.quote_prompt(),
+								},
+							},
+						},
 						heading = {
 							treesitter = true,
 						},
 					},
 				})
 				telescope.load_extension("fzf")
+				telescope.load_extension("live_grep_args")
 				telescope.load_extension("heading")
 				vim.keymap.set("n", "<Plug>(_FuzzyFinder)f", [[<Cmd>Telescope find_files<CR>]], { silent = true })
 				vim.keymap.set("n", "<Plug>(_FuzzyFinder)o", [[<Cmd>Telescope oldfiles<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)s", [[<Cmd>Telescope live_grep<CR>]], { silent = true })
+				vim.keymap.set(
+					"n",
+					"<Plug>(_FuzzyFinder)s",
+					[[<Cmd>lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>]],
+					{ silent = true }
+				)
 				vim.keymap.set("n", "<Plug>(_FuzzyFinder)b", [[<Cmd>Telescope buffers<CR>]], { silent = true })
 				vim.keymap.set("n", "<Plug>(_FuzzyFinder);", [[<Cmd>Telescope command_history<CR>]], { silent = true })
 				vim.keymap.set("n", "<Plug>(_FuzzyFinder)/", [[<Cmd>Telescope search_history<CR>]], { silent = true })
@@ -470,6 +494,28 @@ require("lazy").setup({
 			version = "*",
 			event = { "VimEnter" },
 			config = true,
+		},
+		-- Sinippet
+		{
+			"L3MON4D3/LuaSnip",
+			dependencies = {
+				"rafamadriz/friendly-snippets",
+			},
+			build = "make install_jsregexp",
+			config = function()
+				require("luasnip.loaders.from_vscode").lazy_load({
+					paths = {
+						vim.fn.stdpath("data") .. "/lazy/friendly-snippets",
+					},
+				})
+				local luasnip = require("luasnip")
+				vim.keymap.set({ "i", "s" }, "<C-L>", function()
+					luasnip.jump(1)
+				end, { silent = true })
+				vim.keymap.set({ "i", "s" }, "<C-J>", function()
+					luasnip.jump(-1)
+				end, { silent = true })
+			end,
 		},
 		-- View
 		-- Statusline
@@ -630,6 +676,25 @@ require("lazy").setup({
 			"kevinhwang91/nvim-bqf",
 			ft = { "qf" },
 			config = true,
+		},
+		{
+			"gabrielpoca/replacer.nvim",
+			ft = { "qf" },
+			config = function()
+				require("replacer").setup()
+				vim.api.nvim_create_autocmd("FileType", {
+					pattern = "qf",
+					callback = function()
+						local opts = { save_on_write = false, rename_files = false }
+						vim.keymap.set("n", "<leader>r", function()
+							require("replacer").run(opts)
+						end, { buffer = true, silent = true })
+						vim.keymap.set("n", "<leader>w", function()
+							require("replacer").save(opts)
+						end, { buffer = true, silent = true })
+					end,
+				})
+			end,
 		},
 		-- Lastplace
 		{
