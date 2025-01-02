@@ -1,6 +1,5 @@
 -- TODO: Following tasks are remained.
 -- More LSPs
--- Bufferline Move
 -- Trouble
 -- Test & TaskRunner
 -- DAP
@@ -535,7 +534,24 @@ require("lazy").setup({
 				"nvim-tree/nvim-web-devicons",
 			},
 			event = { "BufReadPre", "BufNewfile" },
-			config = true,
+			config = function()
+				require("bufferline").setup({
+					options = {
+						diagnostics = "nvim_lsp",
+						offsets = {
+							{
+								filetype = "neo-tree",
+								text = "FileExplorer",
+								text_align = "center",
+								separator = true,
+							},
+						},
+						separator_style = "slant",
+					},
+				})
+				vim.keymap.set({ "n" }, "<C-b>l", "<Cmd>BufferLineCycleNext<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<C-b>h", "<Cmd>BufferLineCyclePrev<CR>", { silent = true })
+			end,
 		},
 		{
 			"petertriho/nvim-scrollbar",
