@@ -1,5 +1,6 @@
 -- Options
 vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
 
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
