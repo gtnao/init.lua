@@ -1,7 +1,27 @@
+-- TODO: Following tasks are remained.
+-- Sinippet
+-- Japanese completion
+-- More LSPs
+-- LiveGrep in FuzzyFinder
+-- Bufferline Move
+-- Trouble
+-- Test & TaskRunner
+-- Replace quickfix
+-- DAP
+-- Local Settings
+-- Autocmds
+
 -- Options
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
+
+vim.opt.list = true
+vim.opt.listchars = {
+	space = "⋅",
+	tab = "> ",
+	trail = "•",
+}
 
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
@@ -21,8 +41,10 @@ vim.opt.termguicolors = true
 -- Keymaps
 vim.g.mapleader = " "
 vim.keymap.set({ "n", "x" }, "<Leader>", "<Nop>")
-vim.keymap.set({ "n", "x" }, "<Plug>(ff)", "<Nop>")
-vim.keymap.set({ "n", "x" }, ",", "<Plug>(_FuzzyFinder)")
+vim.keymap.set({ "n", "x" }, "<Plug>(_LSP)", "<Nop>")
+vim.keymap.set({ "n", "x" }, ",", "<Plug>(_LSP)")
+vim.keymap.set({ "n", "x" }, "<Plug>(_FuzzyFinder)", "<Nop>")
+vim.keymap.set({ "n", "x" }, "z", "<Plug>(_FuzzyFinder)")
 
 vim.keymap.set({ "n", "x" }, ";", ":")
 vim.keymap.set({ "n", "x" }, ":", ";")
@@ -38,7 +60,7 @@ vim.keymap.set("n", "<ESC><ESC>", [[<Cmd>nohlsearch<CR>]], { silent = true })
 vim.keymap.set("n", "ZZ", "<Nop>")
 vim.keymap.set("n", "ZQ", "<Nop>")
 
--- Filetype
+-- FileType
 local ft_settings = {
 	go = {
 		tabstop = 4,
@@ -84,6 +106,15 @@ vim.api.nvim_create_autocmd("FileType", {
 			vim.opt_local.shiftwidth = s.shiftwidth
 			vim.opt_local.expandtab = s.expandtab
 		end
+	end,
+})
+
+-- Autocmds
+vim.api.nvim_create_autocmd("TextYankPost", {
+	callback = function()
+		vim.highlight.on_yank({
+			timeout = 300,
+		})
 	end,
 })
 
@@ -259,14 +290,25 @@ require("lazy").setup({
 				"nvim-tree/nvim-web-devicons",
 			},
 			event = { "VeryLazy" },
-			opts = {
-				lightbulb = {
-					enable = false,
-				},
-				symbol_in_winbar = {
-					enable = false,
-				},
-			},
+			opts = {},
+			config = function()
+				require("lspsaga").setup({
+					ui = {
+						code_action = "󰌶",
+					},
+					symbol_in_winbar = {
+						enable = false,
+					},
+				})
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)K", "<Cmd>Lspsaga hover_doc<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)d", "<Cmd>Lspsaga peek_definition<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)D", "<Cmd>Lspsaga goto_definition<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)f", "<Cmd>Lspsaga finder<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)e", "<Cmd>Lspsaga diagnostic_jump_next<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)o", "<Cmd>Lspsaga outline<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)r", "<Cmd>Lspsaga rename ++project<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)c", "<Cmd>Lspsaga code_action<CR>", { silent = true })
+			end,
 		},
 		{
 			"j-hui/fidget.nvim",
@@ -309,7 +351,6 @@ require("lazy").setup({
 		-- FuzzyFinder
 		{
 			"nvim-telescope/telescope.nvim",
-			tag = "0.1.8",
 			dependencies = {
 				"nvim-lua/plenary.nvim",
 				{
@@ -346,7 +387,6 @@ require("lazy").setup({
 		-- Filer
 		{
 			"nvim-neo-tree/neo-tree.nvim",
-			branch = "v3.x",
 			dependencies = {
 				"nvim-lua/plenary.nvim",
 				"nvim-tree/nvim-web-devicons",
@@ -369,6 +409,12 @@ require("lazy").setup({
 			init = function()
 				vim.keymap.set({ "n" }, "<C-n>", [[<Cmd>Neotree toggle reveal<CR>]], { silent = true })
 			end,
+		},
+		-- Diagnostic
+		{
+			"folke/trouble.nvim",
+			event = "BufReadPre",
+			config = true,
 		},
 		-- AI
 		-- Nodejs is required.
@@ -465,19 +511,18 @@ require("lazy").setup({
 		},
 		-- Edit
 		{
+			"kylechui/nvim-surround",
+			event = { "VeryLazy" },
+			config = true,
+		},
+		{
 			"gbprod/substitute.nvim",
 			event = { "VeryLazy" },
 			config = function()
 				local substitute = require("substitute")
-				substitute.setup()
+				substitute.setup({})
 				vim.keymap.set({ "n", "x" }, "_", substitute.operator)
 			end,
-		},
-		{
-			"kylechui/nvim-surround",
-			version = "*",
-			event = { "VeryLazy" },
-			config = true,
 		},
 		{
 			"windwp/nvim-autopairs",
@@ -490,14 +535,6 @@ require("lazy").setup({
 			config = true,
 		},
 		{
-			"monaqa/dial.nvim",
-			event = { "VeryLazy" },
-			init = function()
-				vim.keymap.set({ "n", "x" }, "+", [[<Plug>(dial-increment)]])
-				vim.keymap.set({ "n", "x" }, "-", [[<Plug>(dial-decrement)]])
-			end,
-		},
-		{
 			"Wansmer/treesj",
 			dependencies = {
 				"nvim-treesitter/nvim-treesitter",
@@ -508,6 +545,14 @@ require("lazy").setup({
 					use_default_keymaps = false,
 				})
 				vim.keymap.set({ "n" }, "<Leader>t", require("treesj").toggle)
+			end,
+		},
+		{
+			"monaqa/dial.nvim",
+			event = { "VeryLazy" },
+			init = function()
+				vim.keymap.set({ "n", "x" }, "+", [[<Plug>(dial-increment)]])
+				vim.keymap.set({ "n", "x" }, "-", [[<Plug>(dial-decrement)]])
 			end,
 		},
 		{
@@ -532,37 +577,30 @@ require("lazy").setup({
 		{
 			"kevinhwang91/nvim-hlslens",
 			event = { "VeryLazy" },
-			config = true,
+			config = function()
+				require("hlslens").setup({})
+				vim.keymap.set("n", "<Leader>/", [[*<Cmd>lua require('hlslens').start()<CR>]], { silent = true })
+			end,
 		},
 		-- Move
 		{
-			"phaazon/hop.nvim",
-			branch = "v2",
+			"smoka7/hop.nvim",
 			opts = {
 				keys = "etovxqpdygfblzhckisuran",
 			},
 			event = { "VeryLazy" },
 			init = function()
-				vim.keymap.set("", "fw", [[<Cmd>lua require('hop').hint_words()<CR>]], { silent = true, remap = true })
+				vim.keymap.set(
+					{ "n", "x" },
+					"<Leader>f",
+					[[<Cmd>lua require('hop').hint_words()<CR>]],
+					{ silent = true, remap = true }
+				)
 			end,
 		},
 		-- Highlight
 		{
-			"lukas-reineke/indent-blankline.nvim",
-			main = "ibl",
-			event = { "VeryLazy" },
-			config = true,
-		},
-		{
-			"machakann/vim-highlightedyank",
-			event = { "TextYankPost" },
-			init = function()
-				vim.g.highlightedyank_highlight_duration = 300
-			end,
-		},
-		{
 			"mvllow/modes.nvim",
-			tag = "v0.2.1",
 			event = { "VeryLazy" },
 			config = true,
 		},
@@ -570,14 +608,22 @@ require("lazy").setup({
 			"folke/todo-comments.nvim",
 			dependencies = {
 				"nvim-lua/plenary.nvim",
+
+				"nvim-telescope/telescope.nvim",
 			},
 			event = { "VeryLazy" },
-			config = true,
+			config = function()
+				require("todo-comments").setup({})
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)t", [[<Cmd>TodoTelescope<CR>]], { silent = true })
+				vim.keymap.set("n", "qt", [[<Cmd>TodoQuickFix<CR>]], { silent = true })
+			end,
 		},
 		{
 			"norcalli/nvim-colorizer.lua",
 			event = { "VeryLazy" },
-			config = true,
+			config = function()
+				require("colorizer").setup()
+			end,
 		},
 		-- Quickfix
 		{
@@ -585,7 +631,7 @@ require("lazy").setup({
 			ft = { "qf" },
 			config = true,
 		},
-		-- Session
+		-- Lastplace
 		{
 			"farmergreg/vim-lastplace",
 			event = { "BufReadPre" },
