@@ -1,6 +1,7 @@
 -- TODO: Following tasks are remained.
 -- More LSPs
--- Trouble
+-- Fold
+-- CaseConvert
 -- Test & TaskRunner
 -- DAP
 -- Markdown
@@ -436,8 +437,21 @@ require("lazy").setup({
 		-- Diagnostic
 		{
 			"folke/trouble.nvim",
-			event = "BufReadPre",
-			config = true,
+			cmd = "Trouble",
+			keys = {
+				{
+					"<Leader>xx",
+					[[<Cmd>Trouble diagnostics toggle<CR>]],
+				},
+				{
+					"<leader>xX",
+					[[<Cmd>Trouble diagnostics toggle filter.buf=0<CR>]],
+				},
+			},
+			opts = {
+				focus = true,
+				open_no_results = true,
+			},
 		},
 		-- AI
 		-- Nodejs is required.
