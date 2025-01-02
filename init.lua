@@ -1,12 +1,3 @@
--- TODO: Following tasks are remained.
--- More LSPs
--- Others
--- Test & TaskRunner
--- GitHub
--- DAP
--- Local Settings
--- Autocmds
-
 -- Options
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
@@ -34,6 +25,8 @@ vim.opt.swapfile = false
 
 vim.opt.termguicolors = true
 
+vim.opt.clipboard:append("unnamedplus")
+
 -- Keymaps
 vim.g.mapleader = " "
 vim.keymap.set({ "n", "x" }, "<Leader>", "<Nop>")
@@ -42,16 +35,17 @@ vim.keymap.set({ "n", "x" }, ",", "<Plug>(_LSP)")
 vim.keymap.set({ "n", "x" }, "<Plug>(_FuzzyFinder)", "<Nop>")
 vim.keymap.set({ "n", "x" }, "z", "<Plug>(_FuzzyFinder)")
 
+vim.keymap.set("n", "<Leader>L", [[<Cmd>Lazy<CR>]])
 vim.keymap.set({ "n", "x" }, ";", ":")
 vim.keymap.set({ "n", "x" }, ":", ";")
 
-vim.keymap.set({ "n" }, "<Leader>w", [[<Cmd>update<CR>]], { silent = true })
-vim.keymap.set({ "n" }, "<Leader>q", [[<Cmd>quit<CR>]], { silent = true })
+vim.keymap.set("n", "<Leader>w", [[<Cmd>update<CR>]])
+vim.keymap.set("n", "<Leader>q", [[<Cmd>quit<CR>]])
 
 vim.keymap.set({ "n", "x" }, "<Leader>h", "^")
 vim.keymap.set({ "n", "x" }, "<Leader>l", "$")
 
-vim.keymap.set("n", "<ESC><ESC>", [[<Cmd>nohlsearch<CR>]], { silent = true })
+vim.keymap.set("n", "<ESC><ESC>", [[<Cmd>nohlsearch<CR>]])
 
 vim.keymap.set("n", "ZZ", "<Nop>")
 vim.keymap.set("n", "ZQ", "<Nop>")
@@ -144,15 +138,15 @@ require("lazy").setup({
 			event = { "InsertEnter", "CmdlineEnter" },
 			dependencies = {
 				"hrsh7th/cmp-nvim-lsp",
-				"hrsh7th/cmp-path",
 				"hrsh7th/cmp-nvim-lsp-signature-help",
+				"hrsh7th/cmp-nvim-lsp-document-symbol",
 				"hrsh7th/cmp-nvim-lua",
-				"saadparwaiz1/cmp_luasnip",
+				"hrsh7th/cmp-path",
 				"hrsh7th/cmp-buffer",
 				"hrsh7th/cmp-cmdline",
-				"hrsh7th/cmp-nvim-lsp-document-symbol",
-				"onsails/lspkind-nvim",
+				"saadparwaiz1/cmp_luasnip",
 				"L3MON4D3/LuaSnip",
+				"onsails/lspkind-nvim",
 			},
 			config = function()
 				local cmp = require("cmp")
@@ -209,7 +203,7 @@ require("lazy").setup({
 		-- LSP
 		{
 			"williamboman/mason.nvim",
-			event = { "VeryLazy" },
+			cmd = "Mason",
 			config = true,
 		},
 		{
@@ -217,6 +211,7 @@ require("lazy").setup({
 			dependencies = {
 				"williamboman/mason.nvim",
 				"neovim/nvim-lspconfig",
+				"hrsh7th/cmp-nvim-lsp",
 			},
 			event = { "BufReadPre", "BufNewfile" },
 			config = function()
@@ -228,12 +223,16 @@ require("lazy").setup({
 					},
 					automatic_installation = true,
 				})
+				local default_capabilities = require("cmp_nvim_lsp").default_capabilities()
 				mason_lspconfig.setup_handlers({
 					function(server_name)
-						lspconfig[server_name].setup()
+						lspconfig[server_name].setup({
+							capabilities = default_capabilities,
+						})
 					end,
 					["lua_ls"] = function()
 						lspconfig.lua_ls.setup({
+							capabilities = default_capabilities,
 							on_attach = function(client, _)
 								client.server_capabilities.documentFormattingProvider = false
 								client.server_capabilities.documentRangeFormattingProvider = false
@@ -295,7 +294,6 @@ require("lazy").setup({
 				"nvim-tree/nvim-web-devicons",
 			},
 			event = { "VeryLazy" },
-			opts = {},
 			config = function()
 				require("lspsaga").setup({
 					ui = {
@@ -305,14 +303,14 @@ require("lazy").setup({
 						enable = false,
 					},
 				})
-				vim.keymap.set({ "n" }, "<Plug>(_LSP)K", "<Cmd>Lspsaga hover_doc<CR>", { silent = true })
-				vim.keymap.set({ "n" }, "<Plug>(_LSP)d", "<Cmd>Lspsaga peek_definition<CR>", { silent = true })
-				vim.keymap.set({ "n" }, "<Plug>(_LSP)D", "<Cmd>Lspsaga goto_definition<CR>", { silent = true })
-				vim.keymap.set({ "n" }, "<Plug>(_LSP)f", "<Cmd>Lspsaga finder<CR>", { silent = true })
-				vim.keymap.set({ "n" }, "<Plug>(_LSP)e", "<Cmd>Lspsaga diagnostic_jump_next<CR>", { silent = true })
-				vim.keymap.set({ "n" }, "<Plug>(_LSP)o", "<Cmd>Lspsaga outline<CR>", { silent = true })
-				vim.keymap.set({ "n" }, "<Plug>(_LSP)r", "<Cmd>Lspsaga rename ++project<CR>", { silent = true })
-				vim.keymap.set({ "n" }, "<Plug>(_LSP)c", "<Cmd>Lspsaga code_action<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)K", "<Cmd>Lspsaga hover_doc<CR>")
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)d", "<Cmd>Lspsaga peek_definition<CR>")
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)D", "<Cmd>Lspsaga goto_definition<CR>")
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)f", "<Cmd>Lspsaga finder<CR>")
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)e", "<Cmd>Lspsaga diagnostic_jump_next<CR>")
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)o", "<Cmd>Lspsaga outline<CR>")
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)r", "<Cmd>Lspsaga rename ++project<CR>")
+				vim.keymap.set({ "n" }, "<Plug>(_LSP)c", "<Cmd>Lspsaga code_action<CR>")
 			end,
 		},
 		{
@@ -389,22 +387,21 @@ require("lazy").setup({
 				telescope.load_extension("fzf")
 				telescope.load_extension("live_grep_args")
 				telescope.load_extension("heading")
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)f", [[<Cmd>Telescope find_files<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)o", [[<Cmd>Telescope oldfiles<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)f", [[<Cmd>Telescope find_files<CR>]])
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)o", [[<Cmd>Telescope oldfiles<CR>]])
 				vim.keymap.set(
 					"n",
 					"<Plug>(_FuzzyFinder)s",
-					[[<Cmd>lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>]],
-					{ silent = true }
+					[[<Cmd>lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>]]
 				)
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)b", [[<Cmd>Telescope buffers<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder);", [[<Cmd>Telescope command_history<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)/", [[<Cmd>Telescope search_history<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)q", [[<Cmd>Telescope quickfix<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)d", [[<Cmd>Telescope diagnostics<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)n", [[<Cmd>Telescope notify<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)g", [[<Cmd>Telescope git_status<CR>]], { silent = true })
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)h", [[<Cmd>Telescope heading<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)b", [[<Cmd>Telescope buffers<CR>]])
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder);", [[<Cmd>Telescope command_history<CR>]])
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)/", [[<Cmd>Telescope search_history<CR>]])
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)q", [[<Cmd>Telescope quickfix<CR>]])
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)d", [[<Cmd>Telescope diagnostics<CR>]])
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)n", [[<Cmd>Telescope notify<CR>]])
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)g", [[<Cmd>Telescope git_status<CR>]])
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)h", [[<Cmd>Telescope heading<CR>]])
 			end,
 		},
 		-- Filer
@@ -430,7 +427,7 @@ require("lazy").setup({
 				},
 			},
 			init = function()
-				vim.keymap.set({ "n" }, "<C-n>", [[<Cmd>Neotree toggle reveal<CR>]], { silent = true })
+				vim.keymap.set({ "n" }, "<C-n>", [[<Cmd>Neotree toggle reveal<CR>]])
 			end,
 		},
 		-- Diagnostic
@@ -477,10 +474,13 @@ require("lazy").setup({
 				"sindrets/diffview.nvim",
 				"nvim-telescope/telescope.nvim",
 			},
-			event = { "VeryLazy" },
-			init = function()
-				vim.keymap.set("n", "<Leader>g", [[<Cmd>Neogit<CR>]], { silent = true })
-			end,
+			keys = {
+				{
+					"<Leader>g",
+					[[<Cmd>Neogit<CR>]],
+					mode = { "n" },
+				},
+			},
 			config = true,
 		},
 		{
@@ -505,8 +505,7 @@ require("lazy").setup({
 		-- Terminal
 		{
 			"akinsho/toggleterm.nvim",
-			version = "*",
-			event = { "VimEnter" },
+			cmd = "ToggleTerm",
 			config = true,
 		},
 		-- Sinippet
@@ -525,10 +524,10 @@ require("lazy").setup({
 				local luasnip = require("luasnip")
 				vim.keymap.set({ "i", "s" }, "<C-L>", function()
 					luasnip.jump(1)
-				end, { silent = true })
+				end)
 				vim.keymap.set({ "i", "s" }, "<C-J>", function()
 					luasnip.jump(-1)
-				end, { silent = true })
+				end)
 			end,
 		},
 		-- View
@@ -564,8 +563,8 @@ require("lazy").setup({
 						separator_style = "slant",
 					},
 				})
-				vim.keymap.set({ "n" }, "<C-b>l", "<Cmd>BufferLineCycleNext<CR>", { silent = true })
-				vim.keymap.set({ "n" }, "<C-b>h", "<Cmd>BufferLineCyclePrev<CR>", { silent = true })
+				vim.keymap.set({ "n" }, "<C-b>l", "<Cmd>BufferLineCycleNext<CR>")
+				vim.keymap.set({ "n" }, "<C-b>h", "<Cmd>BufferLineCyclePrev<CR>")
 			end,
 		},
 		{
@@ -606,12 +605,14 @@ require("lazy").setup({
 		},
 		{
 			"gbprod/substitute.nvim",
-			event = { "VeryLazy" },
-			config = function()
-				local substitute = require("substitute")
-				substitute.setup({})
-				vim.keymap.set({ "n", "x" }, "_", substitute.operator)
-			end,
+			keys = {
+				{
+					"_",
+					[[<Cmd>lua require('substitute').operator()<CR>]],
+					mode = { "n", "x" },
+				},
+			},
+			config = true,
 		},
 		{
 			"mopp/vim-operator-convert-case",
@@ -619,10 +620,26 @@ require("lazy").setup({
 				"kana/vim-operator-user",
 			},
 			keys = {
-				{ "<Leader>cl", "<Plug>(operator-convert-case-lower-camel)", mode = { "n", "x" } },
-				{ "<Leader>cu", "<Plug>(operator-convert-case-upper-camel)", mode = { "n", "x" } },
-				{ "<Leader>sl", "<Plug>(operator-convert-case-lower-snake)", mode = { "n", "x" } },
-				{ "<Leader>su", "<Plug>(operator-convert-case-upper-snake)", mode = { "n", "x" } },
+				{
+					"<Leader>cl",
+					"<Plug>(operator-convert-case-lower-camel)",
+					mode = { "n", "x" },
+				},
+				{
+					"<Leader>cu",
+					"<Plug>(operator-convert-case-upper-camel)",
+					mode = { "n", "x" },
+				},
+				{
+					"<Leader>sl",
+					"<Plug>(operator-convert-case-lower-snake)",
+					mode = { "n", "x" },
+				},
+				{
+					"<Leader>su",
+					"<Plug>(operator-convert-case-upper-snake)",
+					mode = { "n", "x" },
+				},
 			},
 		},
 		{
@@ -640,21 +657,31 @@ require("lazy").setup({
 			dependencies = {
 				"nvim-treesitter/nvim-treesitter",
 			},
-			event = { "VeryLazy" },
-			config = function()
-				require("treesj").setup({
-					use_default_keymaps = false,
-				})
-				vim.keymap.set({ "n" }, "<Leader>t", require("treesj").toggle)
-			end,
+			keys = {
+				{
+					"<Leader>t",
+					[[<Cmd>lua require('treesj').toggle()<CR>]],
+					mode = { "n" },
+				},
+			},
+			opts = {
+				use_default_keymaps = false,
+			},
 		},
 		{
 			"monaqa/dial.nvim",
-			event = { "VeryLazy" },
-			init = function()
-				vim.keymap.set({ "n", "x" }, "+", [[<Plug>(dial-increment)]])
-				vim.keymap.set({ "n", "x" }, "-", [[<Plug>(dial-decrement)]])
-			end,
+			keys = {
+				{
+					"+",
+					[[<Plug>(dial-increment)]],
+					mode = { "n", "x" },
+				},
+				{
+					"-",
+					[[<Plug>(dial-decrement)]],
+					mode = { "n", "x" },
+				},
+			},
 		},
 		{
 			"numToStr/Comment.nvim",
@@ -677,27 +704,29 @@ require("lazy").setup({
 		-- Search
 		{
 			"kevinhwang91/nvim-hlslens",
-			event = { "VeryLazy" },
-			config = function()
-				require("hlslens").setup({})
-				vim.keymap.set("n", "<Leader>/", [[*<Cmd>lua require('hlslens').start()<CR>]], { silent = true })
-			end,
+			keys = {
+				{
+					"<Leader>/",
+					[[*<Cmd>lua require('hlslens').start()<CR>]],
+					mode = { "n" },
+				},
+			},
+			config = true,
 		},
 		-- Move
 		{
 			"smoka7/hop.nvim",
+			keys = {
+				{
+					"<Leader>f",
+					[[<Cmd>lua require('hop').hint_words()<CR>]],
+					mode = { "n", "x" },
+					remap = true,
+				},
+			},
 			opts = {
 				keys = "etovxqpdygfblzhckisuran",
 			},
-			event = { "VeryLazy" },
-			init = function()
-				vim.keymap.set(
-					{ "n", "x" },
-					"<Leader>f",
-					[[<Cmd>lua require('hop').hint_words()<CR>]],
-					{ silent = true, remap = true }
-				)
-			end,
 		},
 		-- Highlight
 		{
@@ -709,14 +738,13 @@ require("lazy").setup({
 			"folke/todo-comments.nvim",
 			dependencies = {
 				"nvim-lua/plenary.nvim",
-
 				"nvim-telescope/telescope.nvim",
 			},
 			event = { "VeryLazy" },
 			config = function()
 				require("todo-comments").setup({})
-				vim.keymap.set("n", "<Plug>(_FuzzyFinder)t", [[<Cmd>TodoTelescope<CR>]], { silent = true })
-				vim.keymap.set("n", "qt", [[<Cmd>TodoQuickFix<CR>]], { silent = true })
+				vim.keymap.set("n", "<Plug>(_FuzzyFinder)t", [[<Cmd>TodoTelescope<CR>]])
+				vim.keymap.set("n", "<Leader>qt", [[<Cmd>TodoQuickFix<CR>]])
 			end,
 		},
 		{
@@ -724,6 +752,18 @@ require("lazy").setup({
 			event = { "VeryLazy" },
 			config = function()
 				require("colorizer").setup()
+			end,
+		},
+		-- Jump
+		{
+			"rgroli/other.nvim",
+			cmd = "Other",
+			config = function()
+				require("other-nvim").setup({
+					mappings = {
+						"rails",
+					},
+				})
 			end,
 		},
 		-- Quickfix
@@ -743,10 +783,10 @@ require("lazy").setup({
 						local opts = { save_on_write = false, rename_files = false }
 						vim.keymap.set("n", "<leader>r", function()
 							require("replacer").run(opts)
-						end, { buffer = true, silent = true })
+						end, { buffer = true })
 						vim.keymap.set("n", "<leader>w", function()
 							require("replacer").save(opts)
-						end, { buffer = true, silent = true })
+						end, { buffer = true })
 					end,
 				})
 			end,
@@ -772,16 +812,6 @@ require("lazy").setup({
 			config = function()
 				local notify = require("notify")
 				notify.setup({
-					-- FIXME: Following warning is happened.
-					-- Highlight group 'NotifyBackground' has no background highlight
-					-- Please provide an RGB hex value or highlight group with a background value for 'background_colour' option.
-					-- This is the colour that will be used for 100% transparency.
-					-- ```lua
-					-- require("notify").setup({
-					--   background_colour = "#000000",
-					-- })
-					-- ```
-					-- Defaulting to #000000
 					background_colour = "#282828",
 				})
 				vim.notify = notify
