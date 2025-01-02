@@ -1,10 +1,9 @@
 -- TODO: Following tasks are remained.
 -- More LSPs
--- Fold
--- CaseConvert
+-- Others
 -- Test & TaskRunner
+-- GitHub
 -- DAP
--- Markdown
 -- Local Settings
 -- Autocmds
 
@@ -442,10 +441,12 @@ require("lazy").setup({
 				{
 					"<Leader>xx",
 					[[<Cmd>Trouble diagnostics toggle<CR>]],
+					mode = { "n" },
 				},
 				{
 					"<leader>xX",
 					[[<Cmd>Trouble diagnostics toggle filter.buf=0<CR>]],
+					mode = { "n" },
 				},
 			},
 			opts = {
@@ -613,6 +614,18 @@ require("lazy").setup({
 			end,
 		},
 		{
+			"mopp/vim-operator-convert-case",
+			dependencies = {
+				"kana/vim-operator-user",
+			},
+			keys = {
+				{ "<Leader>cl", "<Plug>(operator-convert-case-lower-camel)", mode = { "n", "x" } },
+				{ "<Leader>cu", "<Plug>(operator-convert-case-upper-camel)", mode = { "n", "x" } },
+				{ "<Leader>sl", "<Plug>(operator-convert-case-lower-snake)", mode = { "n", "x" } },
+				{ "<Leader>su", "<Plug>(operator-convert-case-upper-snake)", mode = { "n", "x" } },
+			},
+		},
+		{
 			"windwp/nvim-autopairs",
 			event = { "InsertEnter" },
 			config = true,
@@ -742,6 +755,15 @@ require("lazy").setup({
 		{
 			"farmergreg/vim-lastplace",
 			event = { "BufReadPre" },
+		},
+		-- Markdown
+		{
+			"OXY2DEV/markview.nvim",
+			ft = "markdown",
+			dependencies = {
+				"nvim-treesitter/nvim-treesitter",
+				"nvim-tree/nvim-web-devicons",
+			},
 		},
 		-- Notification
 		{
