@@ -220,6 +220,7 @@ require("lazy").setup({
 				mason_lspconfig.setup({
 					ensure_installed = {
 						"clangd",
+						vim.fn.executable("go") == 1 and "gopls" or nil,
 						"lua_ls",
 						"rust_analyzer",
 					},
@@ -323,11 +324,8 @@ require("lazy").setup({
 			event = { "VeryLazy" },
 			config = function()
 				require("lspsaga").setup({
-					ui = {
-						code_action = "󰌶",
-					},
 					lightbulb = {
-						virtual_text = false,
+						enable = false,
 					},
 					symbol_in_winbar = {
 						enable = false,
@@ -366,6 +364,8 @@ require("lazy").setup({
 						"git_config",
 						"gitcommit",
 						"gitignore",
+						"go",
+						"gomod",
 						"lua",
 						"markdown",
 						"rust",
