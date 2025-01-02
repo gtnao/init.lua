@@ -108,6 +108,28 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
+-- Utils
+local diagnostic_icons = {
+	hint = "󰌵",
+	info = " ",
+	warn = " ",
+	error = " ",
+}
+
+-- Diagnostic
+vim.diagnostic.config({
+	virtual_text = false,
+	signs = {
+		virtual_text = false,
+		text = {
+			[vim.diagnostic.severity.HINT] = diagnostic_icons.hint,
+			[vim.diagnostic.severity.INFO] = diagnostic_icons.info,
+			[vim.diagnostic.severity.WARN] = diagnostic_icons.warn,
+			[vim.diagnostic.severity.ERROR] = diagnostic_icons.error,
+		},
+	},
+})
+
 -- Plugin Manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -462,6 +484,16 @@ require("lazy").setup({
 						enabled = true,
 					},
 					group_empty_dirs = true,
+				},
+				default_component_configs = {
+					diagnostics = {
+						symbols = {
+							hint = diagnostic_icons.hint,
+							info = diagnostic_icons.info,
+							warn = diagnostic_icons.warn,
+							error = diagnostic_icons.error,
+						},
+					},
 				},
 			},
 			init = function()
